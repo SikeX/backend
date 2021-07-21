@@ -2,9 +2,9 @@
   "name": "backend",
   "version": "0.0.1",
   "description": "",
-  "main": "index.js",
+  "main": "phonebook.js",
   "scripts": {
-    "start": "node index.js",
+    "start": "node phonebook.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "nodemon phonebook.js",
     "build:ui": "rm -rf build && cd ../frontend && npm run build --prod && cp -r build ../backend",
