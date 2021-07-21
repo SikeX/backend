@@ -7,6 +7,7 @@ const app = express()
 app.use(express.json())
 app.use(logger('combined',"haha"))
 app.use(cors())
+app.use(express.static('build'))
 
 let notes = [
     {
