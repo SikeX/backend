@@ -1,3 +1,4 @@
+require('dotenv').config() //env中的量是全局可用的
 const express = require('express')
 const logger = require('morgan')
 const cors = require('cors')
@@ -9,31 +10,13 @@ app.use(logger('combined'))
 app.use(cors())
 app.use(express.static('build'))
 
-let phonebook = [
-    { 
-      "id": 1,
-      "name": "Arto Hellas", 
-      "number": "040-123456"
-    },
-    { 
-      "id": 2,
-      "name": "Ada Lovelace", 
-      "number": "39-44-5323523"
-    },
-    { 
-      "id": 3,
-      "name": "Dan Abramov", 
-      "number": "12-43-234345"
-    },
-    { 
-      "id": 4,
-      "name": "Mary Poppendieck", 
-      "number": "39-23-6423122"
-    }
-]
+const Phonebook = require('./models/phone')
+
 
 app.get('/api/persons',(req, res) => {
-    res.json(phonebook)
+    Phonebook.find({}).then(phonebook => {
+        res.json(phonebook)
+    })
 })
 
 app.get('/info',(req, res) => {
@@ -42,14 +25,15 @@ app.get('/info',(req, res) => {
     res.send(`<p>Phonebook has info for ${len} people <p> ${date} </p>`)
 })
 
-app.get('/api/persons/:id', (req, res) => {
-    const id = Number(req.params.id)
-    const item = phonebook.find(n=>n.id === id)
-    if(item){
-        res.json(item)
-    }else{
-        res.status(404).end()
-    }
+app.get('/api/persons/:id', (req, res, next) => {
+    Phonebook.findById(req.params.id).then(item => {
+        if(item){
+            res.json(note)
+        } else {
+            res.status(400).end()
+        }
+    })
+    .catch(error => next(error))
 })
 
 const generateId = () => {
@@ -75,30 +59,28 @@ app.post('/api/persons',(req, res) => {
         })
     }
     
-    if(phonebook.find(item => body.name === item.name)){
-        return res.status(400).json({
-            error: 'name must be unique'
-        })
-    }
+    // if(Phonebook.find(item => body.name === item.name)){
+    //     return res.status(400).json({
+    //         error: 'name must be unique'
+    //     })
+    // }
 
-    const item = {
+    const item = new Phonebook({
         name: body.name,
         number: body.number,
-        id: generateId()
-    }
+    })
 
-    phonebook = phonebook.concat(item)
-
-    res.json(item)
-
+    item.save().then(saveItem => {
+        res.json(saveItem)
+    })
 })
 
-app.delete('/api/persons/:id',(req, res) => {
-    const id = Number(req.params.id)
-    phonebook = phonebook.filter(n => n.id !== id)
-    res.send('delete OK!')
-
-    res.status(204).end()
+app.delete('/api/persons/:id',(req, res, next) => {
+    Phonebook.findByIdAndRemove(req.params.id)
+        .then(result => {
+            res.status(204).end()
+        })
+        .catch(error => next(error))
 })
 
 const PORT = process.env.PORT || 3002
