@@ -3,10 +3,9 @@
 const phonebookRouter = require('express').Router()
 const Phonebook = require('../models/phone')
 
-phonebookRouter.get('/',(req, res) => {
-    Phonebook.find({}).then(phonebook => {
-        res.json(phonebook)
-    })
+phonebookRouter.get('/',async (req, res) => {
+    const items = await Phonebook.find({})
+    res.json(items)
 })
 
 // app.get('/info',(req, res) => {
@@ -15,15 +14,18 @@ phonebookRouter.get('/',(req, res) => {
 //     res.send(`<p>Phonebook has info for ${len} people <p> ${date} </p>`)
 // })
 
-phonebookRouter.get('/:id', (req, res, next) => {
-    Phonebook.findById(req.params.id).then(item => {
-        if(item){
-            res.json(item)
+phonebookRouter.get('/:id', async (req, res, next) => {
+    try {
+        const founedItem = await Phonebook.findById(req.params.id)
+
+        if (founedItem) {
+            res.json(founedItem)
         } else {
-            res.status(400).end()
+            res.status(404).end()
         }
-    })
-        .catch(error => next(error))
+    } catch(exception) {
+        next(exception)
+    } 
 })
 
 // const generateId = () => {
@@ -34,7 +36,7 @@ phonebookRouter.get('/:id', (req, res, next) => {
 //     return maxId + 1
 // }
 
-phonebookRouter.post('/',(req, res, next) => {
+phonebookRouter.post('/',async (req, res, next) => {
     const body = req.body
     
     if(!body.name){
@@ -60,19 +62,21 @@ phonebookRouter.post('/',(req, res, next) => {
         number: body.number,
     })
 
-    item.save()
-        .then(saveItem => {
-            res.json(saveItem)
-        })
-        .catch(error => next(error))
+    try {
+        const savedItem = await item.save()
+        res.json(savedItem)
+    } catch(exception) {
+        next(exception)
+    }
 })
 
-phonebookRouter.delete('/:id',(req, res, next) => {
-    Phonebook.findByIdAndRemove(req.params.id)
-        .then(() => {
-            res.status(204).end()
-        })
-        .catch(error => next(error))
+phonebookRouter.delete('/:id',async (req, res, next) => {
+    try {
+        await Phonebook.findByIdAndRemove(req.params.id)
+        res.status(204).end()
+    } catch(exception) {
+        next(exception)
+    }
 })
 
 module.exports = phonebookRouter
