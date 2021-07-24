@@ -1,10 +1,10 @@
 // phonebook 路由功能
-
 const phonebookRouter = require('express').Router()
 const Phonebook = require('../models/phone')
+const User = require('../models/user')
 
 phonebookRouter.get('/',async (req, res) => {
-    const items = await Phonebook.find({})
+    const items = await Phonebook.find({}).populate('user',{username:1, name:1})
     res.json(items)
 })
 
@@ -38,6 +38,8 @@ phonebookRouter.get('/:id', async (req, res, next) => {
 
 phonebookRouter.post('/',async (req, res, next) => {
     const body = req.body
+
+    const user = await User.findById(body.userId)
     
     if(!body.name){
         return res.status(400).json({
@@ -60,10 +62,14 @@ phonebookRouter.post('/',async (req, res, next) => {
     const item = new Phonebook({
         name: body.name,
         number: body.number,
+        user: user._id
     })
 
     try {
         const savedItem = await item.save()
+        user.items = user.items.concat(savedItem._id)
+        await user.save()
+
         res.json(savedItem)
     } catch(exception) {
         next(exception)

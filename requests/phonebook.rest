@@ -5,8 +5,20 @@ POST http://localhost:3002/api/persons
 Content-Type: application/json
 
 {
-    "name": "morty",
-    "number": "21632-3243"
+    "name": "jack",
+    "number": "1632-3243",
+    "userId": "60fbe48d52c5c87fc657d59c"
+}
+
+###
+
+POST http://localhost:3002/api/persons
+Content-Type: application/json
+
+{
+    "name": "ross",
+    "number": "3232-3232",
+    "userId": "60fc0caad16cb40291b95b4b"
 }
 
 ###
@@ -18,4 +30,14 @@ Content-Type: application/json
     "username": "sike",
     "name": "sike xu",
     "password": "1234567"
+}
+
+###
+POST http://localhost:3002/api/users
+Content-Type: application/json
+
+{
+    "username": "yolo",
+    "name": "yoloxz",
+    "password": "hahahaha"
 }
