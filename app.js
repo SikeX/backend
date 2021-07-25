@@ -5,6 +5,7 @@ const app = express()
 const cors = require('cors')
 const phonebookRouter = require('./controllers/phonebook') //phonebook路由模块
 const userRouter = require('./controllers/users') // user 路由模块
+const loginRouter = require('./controllers/login') // login路由模块
 const morgan = require('morgan') // requset 连接日志中间件
 const logger = require('./utils/logger') // 日志模块
 const mongoose = require('mongoose')  //连接MongoDB组件
@@ -28,6 +29,7 @@ app.use(cors())
 app.use(express.static('build'))
 app.use(middleware.requestLogger)
 
+app.use('/api/login',loginRouter)
 app.use('/api/persons',phonebookRouter)
 app.use('/api/users',userRouter)
 
