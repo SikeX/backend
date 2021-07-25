@@ -1,7 +1,16 @@
 // phonebook 路由功能
 const phonebookRouter = require('express').Router()
+const jwt = require('jsonwebtoken')
 const Phonebook = require('../models/phone')
 const User = require('../models/user')
+
+const getTokenFrom = (request) => {
+    const authorization = request.get('authorization')
+    if(authorization && authorization.toLowerCase().startsWith('bearer ')){
+        return authorization.substring(7)
+    }
+    return null
+}
 
 phonebookRouter.get('/',async (req, res) => {
     const items = await Phonebook.find({}).populate('user',{username:1, name:1})
@@ -38,8 +47,15 @@ phonebookRouter.get('/:id', async (req, res, next) => {
 
 phonebookRouter.post('/',async (req, res, next) => {
     const body = req.body
-
-    const user = await User.findById(body.userId)
+    
+    const token = getTokenFrom(req)
+    const decodedToken = jwt.verify(token, process.env.SECRET)
+    
+    if(!token || !decodedToken) {
+        return res.status(401).json({error: 'token missing or invalid'})
+    }
+    
+    const user = await User.findById(decodedToken.id)
     
     if(!body.name){
         return res.status(400).json({
