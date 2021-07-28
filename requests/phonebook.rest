@@ -5,8 +5,8 @@ POST http://localhost:3002/api/persons
 Content-Type: application/json
 
 {
-    "name": "jack",
-    "number": "1632-3243",
+    "name": "haha",
+    "number": "13332-3243",
     "userId": "60fbe48d52c5c87fc657d59c"
 }
 
